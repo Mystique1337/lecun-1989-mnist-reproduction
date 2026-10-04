@@ -14,10 +14,10 @@ Test-set results, mean ± standard deviation over five seeds. All runs used one 
 
 | Model | Parameters | Test loss | Test accuracy (%) | Training time (s) | Time per epoch (s) |
 |---|---:|---|---:|---:|---:|
-| Chollet (2021) | 34,826 | 0.0260 ± 0.0027 (CE) | **99.14 ± 0.11** | 80.9 ± 0.3 | 5.39 |
-| Le Cun et al. (1989), reconstructed | 2,578 | 0.0429 ± 0.0010 (MSE) | 98.02 ± 0.04 | 110.2 ± 1.0 | 3.67 |
-| Le Cun topology, dropout instead of Table 1 | 3,278 | 0.0439 ± 0.0007 (MSE) | 97.76 ± 0.07 | 117.4 ± 0.5 | 3.91 |
-| Le Cun topology, Chollet's training recipe | 2,578 | 0.0510 ± 0.0021 (CE) | 98.31 ± 0.09 | 32.8 ± 0.2 | 2.18 |
+| Chollet (2021) | 34,826 | 0.0260 ± 0.0027 (CE) | **99.14 ± 0.11** | 82.7 ± 1.9 | 5.51 |
+| Le Cun et al. (1989), reconstructed | 2,578 | 0.0429 ± 0.0010 (MSE) | 98.02 ± 0.04 | 109.9 ± 0.6 | 3.66 |
+| Le Cun topology, dropout instead of Table 1 | 3,278 | 0.0439 ± 0.0007 (MSE) | 97.76 ± 0.07 | 116.5 ± 1.1 | 3.88 |
+| Le Cun topology, Chollet's training recipe | 2,578 | 0.0510 ± 0.0021 (CE) | 98.31 ± 0.09 | 33.4 ± 1.7 | 2.22 |
 
 CE is categorical cross-entropy and MSE is mean squared error, so the two loss columns are not comparable with each other. Source: [`results/tables/t07_headline.csv`](results/tables/t07_headline.csv).
 
@@ -25,8 +25,8 @@ What the numbers say:
 
 - **The gap is real but small.** Chollet's network is 1.12 percentage points more accurate (95% CI 0.98 to 1.26) with 13.5 times as many parameters. An exact McNemar test on each seed's paired predictions is significant on all five seeds.
 - **Most of it comes from the network, not the training.** Training the 1989 network with Chollet's recipe (inputs in [0, 1], softmax, cross-entropy, Adam, batch size 128, 15 epochs) recovers 0.29 pp. The remaining 0.83 pp separates the two networks trained identically. Which architectural difference accounts for it (activation, pooling, kernel size, width) was not isolated, and the split assumes network and recipe do not interact.
-- **Dropout is a poor substitute for Table 1.** Replacing the sparse connections with full connections plus dropout lowers accuracy by 0.26 pp (worse on every seed). No configuration shows signs of overfitting, so there is little for dropout to correct; a plausible, untested reading is that in a network this small it mainly removes capacity.
-- **The smaller network is not slower per step.** Each epoch of the reconstruction takes 3.67 s against 5.39 s. It trains longer overall only because 30 epochs at batch size 32 perform eight times as many weight updates. On Chollet's schedule it finishes in 32.8 s.
+- **Dropout is a poor substitute for Table 1.** Replacing the sparse connections with full connections plus dropout lowers accuracy by 0.26 pp (worse on every seed). Measured with dropout switched off, the reconstruction classifies only 97.80% of its training images correctly, below its 98.27% validation accuracy, so there is no overfitting for dropout to correct; the dropout variant fits its training images even less well (97.47%). Chollet's network, by contrast, reaches 99.55% on its training images.
+- **The smaller network is not slower per step.** Each epoch of the reconstruction takes 3.66 s against 5.51 s. It trains longer overall mainly because 30 epochs at batch size 32 perform eight times as many weight updates. On Chollet's schedule it finishes in 33.4 s.
 - **The extra errors are concentrated.** The reconstruction misreads the digit 4 on 3.05% of test images against 0.43% for Chollet's network, most often as a 9, followed by 7 (2.80% against 0.99%) and 3 (1.82% against 0.48%).
 
 ![Validation accuracy per epoch](results/figures/fig03_learning_curves.png)
