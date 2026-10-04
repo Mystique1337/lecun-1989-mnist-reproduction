@@ -374,7 +374,7 @@ def graphical_abstract(sample_digit: np.ndarray, numbers: dict):
     # 1. Motivation
     ax = panel(0.00, 0.22, "1  Question")
     ax.text(0.03, 0.86,
-            "Can the first CNN for\ndigit recognition\n(Le Cun et al., 1989)\nbe rebuilt in modern\n"
+            "Can the 1989 CNN for\ndigit recognition\n(Le Cun et al., 1989)\nbe rebuilt in modern\n"
             "Keras, and how far\nis it from a 2021\nreference model?",
             fontsize=7.0, color=INK_2, va="top", linespacing=1.3)
 
