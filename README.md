@@ -24,8 +24,8 @@ CE is categorical cross-entropy and MSE is mean squared error, so the two loss c
 What the numbers say:
 
 - **The gap is real but small.** Chollet's network is 1.12 percentage points more accurate (95% CI 0.98 to 1.26) with 13.5 times as many parameters. An exact McNemar test on each seed's paired predictions is significant on all five seeds.
-- **Most of it comes from the network, not the training.** Training the 1989 network with Chollet's recipe (softmax, cross-entropy, Adam, batch size 128, 15 epochs) recovers 0.29 pp. The remaining 0.83 pp separates the two networks trained identically.
-- **Dropout is a poor substitute for Table 1.** Replacing the sparse connections with full connections plus dropout lowers accuracy by 0.26 pp (worse on every seed). A network of 2,578 parameters underfits rather than overfits, so removing units only removes capacity.
+- **Most of it comes from the network, not the training.** Training the 1989 network with Chollet's recipe (inputs in [0, 1], softmax, cross-entropy, Adam, batch size 128, 15 epochs) recovers 0.29 pp. The remaining 0.83 pp separates the two networks trained identically. Which architectural difference accounts for it (activation, pooling, kernel size, width) was not isolated, and the split assumes network and recipe do not interact.
+- **Dropout is a poor substitute for Table 1.** Replacing the sparse connections with full connections plus dropout lowers accuracy by 0.26 pp (worse on every seed). No configuration shows signs of overfitting, so there is little for dropout to correct; a plausible, untested reading is that in a network this small it mainly removes capacity.
 - **The smaller network is not slower per step.** Each epoch of the reconstruction takes 3.67 s against 5.39 s. It trains longer overall only because 30 epochs at batch size 32 perform eight times as many weight updates. On Chollet's schedule it finishes in 32.8 s.
 - **The extra errors are concentrated.** The reconstruction misreads the digit 4 on 3.05% of test images against 0.43% for Chollet's network, most often as a 9, followed by 7 (2.80% against 0.99%) and 3 (1.82% against 0.48%).
 
