@@ -108,6 +108,9 @@ def configure_determinism() -> None:
 
 _DATA_CACHE: dict = {}
 
+# Inference time is the median of this many timed passes over the test set.
+INFERENCE_REPEATS = 5
+
 
 def get_data(recipe: Recipe):
     key = (recipe.input_scaling, recipe.targets)
@@ -131,6 +134,9 @@ class RunResult:
     test_predictions: np.ndarray = field(repr=False)
     test_scores: np.ndarray = field(repr=False)
     inference_seconds: float = float("nan")
+    # Accuracy on the training split in inference mode (dropout off), so it is
+    # directly comparable with validation and test accuracy.
+    train_accuracy: float = float("nan")
     # The trained model, kept for inspection (filters, misclassifications).
     model: keras.Model | None = field(default=None, repr=False, compare=False)
 
@@ -146,6 +152,7 @@ class RunResult:
             "parameters": self.parameters,
             "train_seconds": self.train_seconds,
             "seconds_per_epoch": float(np.mean(self.epoch_seconds)),
+            "train_accuracy": self.train_accuracy,
             "val_accuracy": self.val_accuracy,
             "test_loss": self.test_loss,
             "test_accuracy": self.test_accuracy,
@@ -194,17 +201,25 @@ def train_and_evaluate(
     train_seconds = time.perf_counter() - t0
 
     val_accuracy = float(history.history["val_accuracy"][-1])
-    test_loss = test_accuracy = inference_seconds = float("nan")
+    test_loss = test_accuracy = inference_seconds = train_accuracy = float("nan")
     predictions = scores = np.array([])
     if evaluate_test:
-        test_loss, test_accuracy = (float(v) for v in model.evaluate(
-            data.test.x, data.test.y, batch_size=1024, verbose=0))
-        # Warm up once so graph tracing is not billed to inference time.
+        test_loss = float(model.evaluate(data.test.x, data.test.y, batch_size=1024, verbose=0)[0])
+        # Warm up once so graph tracing is not billed to inference time, then
+        # take the median of several passes over the test set.
         model.predict(data.test.x[:1024], batch_size=1024, verbose=0)
-        t1 = time.perf_counter()
-        scores = model.predict(data.test.x, batch_size=1024, verbose=0)
-        inference_seconds = time.perf_counter() - t1
+        passes = []
+        for _ in range(INFERENCE_REPEATS):
+            t1 = time.perf_counter()
+            scores = model.predict(data.test.x, batch_size=1024, verbose=0)
+            passes.append(time.perf_counter() - t1)
+        inference_seconds = float(np.median(passes))
         predictions = scores.argmax(axis=1)
+        # Accuracy from the integer predictions: exact, and identical to the
+        # predictions used by the McNemar tests.
+        test_accuracy = float(np.mean(predictions == data.test.labels))
+        train_pred = model.predict(data.train.x, batch_size=1024, verbose=0).argmax(axis=1)
+        train_accuracy = float(np.mean(train_pred == data.train.labels))
 
     result = RunResult(
         model_name=model.name,
@@ -220,6 +235,7 @@ def train_and_evaluate(
         test_predictions=predictions,
         test_scores=scores,
         inference_seconds=inference_seconds,
+        train_accuracy=train_accuracy,
         model=model,
     )
     return result
