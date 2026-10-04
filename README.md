@@ -23,11 +23,11 @@ CE is categorical cross-entropy and MSE is mean squared error, so the two loss c
 
 What the numbers say:
 
-- **The gap is real but small.** Chollet's network is 1.12 percentage points more accurate (95% CI 0.98 to 1.26) with 13.5 times as many parameters. An exact McNemar test on each seed's paired predictions is significant on all five seeds.
-- **Most of it comes from the network, not the training.** Training the 1989 network with Chollet's recipe (inputs in [0, 1], softmax, cross-entropy, Adam, batch size 128, 15 epochs) recovers 0.29 pp. The remaining 0.83 pp separates the two networks trained identically. Which architectural difference accounts for it (activation, pooling, kernel size, width) was not isolated, and the split assumes network and recipe do not interact.
-- **Dropout is a poor substitute for Table 1.** Replacing the sparse connections with full connections plus dropout lowers accuracy by 0.26 pp (worse on every seed). Measured with dropout switched off, the reconstruction classifies only 97.80% of its training images correctly, below its 98.27% validation accuracy, so there is no overfitting for dropout to correct; the dropout variant fits its training images even less well (97.47%). Chollet's network, by contrast, reaches 99.55% on its training images.
-- **The smaller network is not slower per step.** Each epoch of the reconstruction takes 3.66 s against 5.51 s. It trains longer overall mainly because 30 epochs at batch size 32 perform eight times as many weight updates. On Chollet's schedule it finishes in 33.4 s.
-- **The extra errors are concentrated.** The reconstruction misreads the digit 4 on 3.05% of test images against 0.43% for Chollet's network, most often as a 9, followed by 7 (2.80% against 0.99%) and 3 (1.82% against 0.48%).
+- Chollet's network is 1.12 percentage points more accurate (95% CI 0.98 to 1.26) with 13.5 times as many parameters, and an exact McNemar test on each seed's paired predictions is significant on all five seeds.
+- Training the 1989 network with Chollet's recipe (inputs in [0, 1], softmax, cross-entropy, Adam, batch size 128, 15 epochs) recovers 0.29 pp of that gap. The remaining 0.83 pp separates the two networks trained identically. Which architectural difference accounts for it (activation, pooling, kernel size, width or dropout) was not isolated, and the split assumes that network and recipe do not interact.
+- Replacing the sparse H2 to H3 connections with full connections plus dropout lowers accuracy by 0.26 pp, on every seed. Measured with dropout switched off, the reconstruction classifies only 97.80% of its training images correctly, below its 98.27% validation accuracy, so there is no overfitting for dropout to correct; the dropout variant fits its training images even less well (97.47%). Chollet's network reaches 99.55% on its training images.
+- Each epoch of the reconstruction takes 3.66 s against 5.51 s. It trains longer overall mainly because 30 epochs at batch size 32 perform eight times as many weight updates; on Chollet's schedule it finishes in 33.4 s.
+- The reconstruction misreads 3.05% of the test images of fours against 0.43% for Chollet's network, most often as a 9, followed by sevens (2.80% against 0.99%) and threes (1.82% against 0.48%).
 
 ![Validation accuracy per epoch](results/figures/fig03_learning_curves.png)
 
@@ -68,7 +68,7 @@ jupyter nbconvert --to notebook --execute --inplace \
 
 `requirements.txt` gives minimum versions. `requirements-lock.txt` pins the exact versions that produced the committed results (Python 3.12, TensorFlow 2.21.0, Keras 3.15.1). Accuracies are deterministic for a given seed and software stack, but other versions or hardware may change the last digits, and training times depend on the machine.
 
-The notebook writes every table to `results/tables/`, every figure to `results/figures/`, and a machine-readable record of every headline number to `results/metrics/results.json`. All three are committed, so the numbers below can be checked without rerunning anything.
+The notebook writes every table to `results/tables/`, every figure to `results/figures/`, and a machine-readable record of every headline number to `results/metrics/results.json`. All three are committed, so every number in this README can be checked without rerunning anything.
 
 For a quick end-to-end check, smoke mode runs every cell with one epoch and two seeds and writes to a scratch folder, leaving the committed results untouched (about two minutes; CI runs it on every push):
 
