@@ -319,8 +319,11 @@ display(params_table)
 # | `lecun_chollet_recipe` | 1989 network with Table 1, softmax output | Chollet (2021) | separates the effect of the network from the effect of the training recipe |
 #
 # Runs are interleaved by seed (all four configurations for seed 0, then seed 1, ...) so that any drift in
-# machine load affects every configuration equally. Training time is the wall-clock duration of
-# `model.fit`, which, as in Chollet's example, includes the validation pass after each epoch.
+# machine load affects every configuration comparably. Training time is the wall-clock duration of
+# `model.fit`, which, as in Chollet's example, includes the validation pass after each epoch. Inference
+# time is the median of five passes over the 10,000 test images (batches of 1,024, after a warm-up).
+# Test accuracy is computed from the predicted labels; training accuracy is measured after training in
+# inference mode, so that it is comparable with validation accuracy.
 
 # %%
 CONFIGS = {
@@ -435,12 +438,18 @@ curves = {k: np.array([r.history["val_accuracy"] for r in runs[k]]) for k in CON
 F.save(F.learning_curves(curves, ylim=(0.955, 0.995)), FIG / "fig03_learning_curves.png")
 display(Image(FIG / "fig03_learning_curves.png", width=560))
 
+# Training accuracy is measured after training in inference mode (dropout off),
+# like validation accuracy. Keras' logged training accuracy is a running mean
+# over the last epoch with dropout active, so it is shown only for reference.
 final_train_gap = pd.DataFrame({
     "config": list(CONFIGS),
-    "final_train_accuracy": [np.mean([r.history["accuracy"][-1] for r in runs[k]]) for k in CONFIGS],
+    "final_train_accuracy": [np.mean([r.train_accuracy for r in runs[k]]) for k in CONFIGS],
     "final_val_accuracy": [np.mean([r.history["val_accuracy"][-1] for r in runs[k]]) for k in CONFIGS],
+    "logged_train_accuracy": [np.mean([r.history["accuracy"][-1] for r in runs[k]]) for k in CONFIGS],
 })
 final_train_gap["gap_pp"] = 100 * (final_train_gap["final_train_accuracy"] - final_train_gap["final_val_accuracy"])
+final_train_gap["seeds_train_above_val"] = [
+    sum(r.train_accuracy > r.history["val_accuracy"][-1] for r in runs[k]) for k in CONFIGS]
 final_train_gap.to_csv(TAB / "t09_generalisation_gap.csv", index=False)
 display(final_train_gap.round(4))
 
