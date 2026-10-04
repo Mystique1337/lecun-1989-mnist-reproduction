@@ -1,0 +1,20 @@
+# Environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# The written report is kept out of version control: its title page carries
+# personal identifiers. Every number it cites is reproducible from results/.
+report/
+
+# Run logs are local scratch; the executed notebook is the record of a run.
+results/*.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lecun1989"
+version = "1.0.0"
+description = "Le Cun et al. (1989) rebuilt in Keras and compared with Chollet's (2021) MNIST convnet"
+readme = "README.md"
+authors = [{ name = "Emmanuel Chidi Ashinze" }]
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "tensorflow>=2.16",
+    "keras>=3.3",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

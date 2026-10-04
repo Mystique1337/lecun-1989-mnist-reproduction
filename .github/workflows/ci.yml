@@ -1,0 +1,50 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        # Installed from requirements.txt so CI cannot drift from what users
+        # install. The CPU build of TensorFlow is substituted because runners
+        # have no GPU and the full wheel is several times larger.
+        run: |
+          python -m pip install --upgrade pip
+          sed -E 's/^tensorflow([<>=]|$)/tensorflow-cpu\1/' requirements.txt > ci-requirements.txt
+          pip install -r ci-requirements.txt
+          pip install -e . --no-deps
+
+      - name: Run tests
+        env:
+          KERAS_BACKEND: tensorflow
+          TF_CPP_MIN_LOG_LEVEL: "3"
+        run: python -m pytest -v
+
+      - name: Run the notebook end to end (smoke mode, 1 epoch, 2 seeds)
+        if: matrix.python-version == '3.12'
+        env:
+          KERAS_BACKEND: tensorflow
+          TF_CPP_MIN_LOG_LEVEL: "3"
+          LECUN1989_SMOKE: "1"
+          LECUN1989_OUT: ${{ runner.temp }}/smoke
+        run: |
+          mkdir -p "$LECUN1989_OUT"
+          jupyter nbconvert --to notebook --execute --output-dir "$LECUN1989_OUT" \
+            --output smoke notebooks/lecun1989_vs_chollet2021.ipynb

@@ -1,0 +1,17 @@
+# Versions used for the reported results: Python 3.12, TensorFlow 2.21.0,
+# Keras 3.15.1, NumPy 2.5.3. Lower bounds are the oldest versions the code
+# needs; newer releases are expected to work.
+tensorflow>=2.16
+keras>=3.3
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
+matplotlib>=3.8
+
+# Notebook execution and export
+jupytext>=1.16
+nbconvert>=7.16
+ipykernel>=6.29
+
+# Tests
+pytest>=8.0
