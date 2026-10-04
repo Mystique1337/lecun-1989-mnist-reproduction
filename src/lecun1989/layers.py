@@ -53,7 +53,7 @@ def scaled_tanh(x):
     """The scaled hyperbolic tangent f(a) = 1.7159 tanh(2a/3).
 
     The 1989 paper only says each convolution is "followed by a squashing
-    function" (p. 399). This particular scaling is the one recommended by
+    function" (p. 399). This particular scaling is the one used by
     LeCun et al. (1998, pp. 2285, 2318) for targets of +/-1: it gives
     f(+/-1) = +/-1, so the targets sit inside the function's range rather than
     at its asymptotes, where gradients vanish.
