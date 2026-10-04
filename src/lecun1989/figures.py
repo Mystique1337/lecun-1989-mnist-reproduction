@@ -178,9 +178,9 @@ def architecture_diagram():
         [
             ("Input", "28×28×1\n[−1, 1]"),
             ("H1 conv", "4 @ 5×5\nf(·) → 24×24"),
-            ("H2 average", "2×2, 1 w + 1 b\nper map → 12×12"),
+            ("H2 average", "2×2, 1 w + 1 b\nper map, f(·)\n→ 12×12"),
             ("H3 conv", "12 @ 5×5\nTable 1 → 8×8"),
-            ("H4 average", "2×2, 1 w + 1 b\nper map → 4×4"),
+            ("H4 average", "2×2, 1 w + 1 b\nper map, f(·)\n→ 4×4"),
             ("Flatten", "192 units"),
             ("Output", "10, f(·)\n±1 targets, MSE"),
         ],
