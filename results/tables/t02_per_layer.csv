@@ -1,0 +1,6 @@
+layer,units,connections,parameters
+H1,2304,59904,104
+H2,576,2880,8
+H3,768,32768,512
+H4,192,960,24
+output,10,1930,1930

@@ -1,0 +1,16 @@
+Aspect,Chollet (2021),Le Cun et al. (1989),This implementation
+Data set,MNIST,U.S. Postal Service zip codes + printed digits (p. 397),MNIST
+Training / validation / test,"54,000 / 6,000 / 10,000","9,840 / none reported / 2,707 (p. 397)","54,000 / 6,000 / 10,000"
+Input,"28×28, scaled to [0, 1]","16×16 digit in a 28×28 plane, [−1, 1] (pp. 398, 400)","28×28, scaled to [−1, 1]"
+Hidden layers,2 conv + 2 max pool,4: H1-H4 (p. 400),4: H1-H4
+Feature maps per layer,"32, 64","4, 4, 12, 12 (pp. 400-402)","4, 4, 12, 12"
+Filter size,3×3,"5×5 conv, 2×2 averaging (p. 400)","5×5 conv, 2×2 averaging"
+Pooling,"Max, 2×2","Trainable averaging, 2×2 (p. 400)","Trainable averaging, 2×2"
+H2-H3 connections,n/a,"Table 1, 20 of 48 (p. 400)","Table 1, exact"
+Activation,ReLU; softmax output,Squashing function (p. 399),1.7159 tanh(2a/3)
+Targets and loss,"One-hot, cross-entropy","±1 targets (p. 399), MSE (p. 402)","±1 targets, MSE"
+Regularisation,Dropout 0.5,"Weight sharing, sparse connections","Weight sharing, Table 1"
+Free parameters,"34,826","2,578 (p. 402)","2,578"
+Optimiser,"Adam, learning rate 0.001",Second-order back-propagation (p. 402),"RMSprop, learning rate 0.001"
+Batch size,128,Not stated,32
+Epochs,15,30 passes (p. 402),30

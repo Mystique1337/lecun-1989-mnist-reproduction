@@ -1,0 +1,4 @@
+split,images,source
+train,54000,"MNIST training set, images 0-53,999"
+validation,6000,"MNIST training set, images 54,000-59,999"
+test,10000,MNIST test set
